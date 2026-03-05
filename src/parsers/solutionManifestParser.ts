@@ -1,7 +1,7 @@
 import { XMLParser } from 'fast-xml-parser';
 import * as fs from 'fs';
 import * as path from 'path';
-import type { SolutionModel } from '../ir/models.js';
+import type { SolutionModel } from '../ir/index.js';
 
 const parser = new XMLParser({
     attributeNamePrefix: '@_',

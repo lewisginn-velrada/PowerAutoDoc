@@ -1,7 +1,7 @@
 import { XMLParser } from 'fast-xml-parser';
 import * as fs from 'fs';
 import * as path from 'path';
-import type { FormModel, FormTabModel, FormSectionModel } from '../ir/models.js';
+import type { FormModel, FormTabModel, FormSectionModel } from '../ir/index.js';
 
 const parser = new XMLParser({
   attributeNamePrefix: '@_',

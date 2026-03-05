@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import type { TableModel, ColumnModel, RelationshipModel } from '../ir/models.js';
+import type { TableModel, ColumnModel, RelationshipModel } from '../ir/index.js';
 
-import { RENDER_OPTIONS } from '../config.js';
+import { RENDER_OPTIONS } from '../config/index.js';
 
 function pad(str: string, length: number): string {
     return str.padEnd(length, ' ');

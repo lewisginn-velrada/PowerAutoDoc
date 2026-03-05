@@ -1,7 +1,7 @@
 import { XMLParser } from 'fast-xml-parser';
 import * as fs from 'fs';
 import * as path from 'path';
-import { TableModel, ColumnModel, ColumnType } from '../ir/models.js';
+import { TableModel, ColumnModel, ColumnType } from '../ir/index.js';
 
 // -----------------------------------------------
 // STEP 1: Configure the XML parser

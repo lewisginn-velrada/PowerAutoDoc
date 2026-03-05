@@ -1,7 +1,5 @@
-import { parseSolution } from './parsers/solutionParser.js';
-import { parseSolutionManifest } from './parsers/solutionManifestParser.js';
-import { writeTableMarkdown } from './renderers/tableRenderer.js';
-import { writeOverviewMarkdown } from './renderers/overviewRenderer.js';
+import { parseSolution, parseSolutionManifest } from './parsers/index.js';
+import { writeTableMarkdown, writeOverviewMarkdown } from './renderers/index.js';
 
 const unpackedPath = './unpacked';
 

@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import type { SolutionModel } from '../ir/models.js';
+import type { SolutionModel } from '../ir/index.js';
 
 function pad(str: string, length: number): string {
     return str.padEnd(length, ' ');

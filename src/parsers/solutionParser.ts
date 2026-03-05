@@ -4,12 +4,12 @@ import { parseEntityXml } from './tableParser.js';
 import { parseEntityViews } from './viewParser.js';
 import { parseEntityForms } from './formParser.js';
 import { parseAllRelationships, getRelationshipsForTable } from './relationshipParser.js';
-import type { TableModel } from '../ir/models.js';
+import type { TableModel } from '../ir/index.js';
 import {
     DEFAULT_EXCLUDED_COLUMNS,
     DEFAULT_EXCLUDE_BASE_CURRENCY_FIELDS,
     DEFAULT_EXCLUDE_STANDARD_RELATIONSHIPS,
-} from '../config.js';
+} from '../config/index.js';
 
 interface ParseOptions {
     excludedColumns?: Set<string>;
