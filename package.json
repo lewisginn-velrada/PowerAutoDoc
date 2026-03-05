@@ -15,6 +15,7 @@
   },
   "scripts": {
     "dev": "tsx src/index.ts > dev.log 2>&1",
-    "build": "tsc"
+    "build": "tsc",
+    "docs": "cd docs-viewer && npm run build && npx serve dist"
   }
 }
