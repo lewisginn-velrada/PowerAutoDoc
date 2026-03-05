@@ -52,25 +52,25 @@ function renderColumnTable(columns: ColumnModel[]): string {
 }
 
 function renderRelationshipTable(relationships: RelationshipModel[], currentTable: string): string {
-  const rows = relationships.map(rel => {
-    // Show the relationship from the perspective of the current table
-    const isParent = rel.referencedEntity.toLowerCase() === currentTable.toLowerCase();
-    const direction = isParent ? 'One (this) → Many' : 'Many → One (this)';
-    const otherTable = isParent ? rel.referencingEntity : rel.referencedEntity;
+    const rows = relationships.map(rel => {
+        // Show the relationship from the perspective of the current table
+        const isParent = rel.referencedEntity.toLowerCase() === currentTable.toLowerCase();
+        const direction = isParent ? 'One (this) → Many' : 'Many → One (this)';
+        const otherTable = isParent ? rel.referencingEntity : rel.referencedEntity;
 
-    return [
-      rel.name,
-      direction,
-      otherTable,
-      `\`${rel.referencingAttribute}\``,
-      rel.description || '',
-    ];
-  });
+        return [
+            rel.name,
+            direction,
+            otherTable,
+            `\`${rel.referencingAttribute}\``,
+            rel.description || '',
+        ];
+    });
 
-  return markdownTable(
-    ['Relationship Name', 'Direction', 'Related Table', 'Lookup Field', 'Description'],
-    rows
-  );
+    return markdownTable(
+        ['Relationship Name', 'Direction', 'Related Table', 'Lookup Field', 'Description'],
+        rows
+    );
 }
 
 export function renderTableMarkdown(table: TableModel): string {
@@ -131,7 +131,6 @@ export function renderTableMarkdown(table: TableModel): string {
     }
 
     // ---- Relationships ----
-    // ---- Relationships ----
     lines.push('## Relationships');
     lines.push('');
 
@@ -153,6 +152,46 @@ export function renderTableMarkdown(table: TableModel): string {
             lines.push('');
             lines.push(renderRelationshipTable(standardRels, table.logicalName));
             lines.push('');
+        }
+    }
+    // ---- Forms ----
+    lines.push('## Forms');
+    lines.push('');
+
+    if (table.forms.length === 0) {
+        lines.push('_No forms found._');
+    } else {
+        const formRows = table.forms.map(f => [
+            f.name,
+            f.type,
+            f.tabs.length.toString(),
+            f.tabs.reduce((acc, t) => acc + t.sections.reduce((s, sec) => s + sec.columns.length, 0), 0).toString(),
+        ]);
+        lines.push(markdownTable(
+            ['Form Name', 'Type', 'Tab Count', 'Total Fields'],
+            formRows
+        ));
+        lines.push('');
+
+        if (RENDER_OPTIONS.formLayout === 'detailed') {
+            for (const form of table.forms) {
+                lines.push(`### ${form.name} (${form.type})`);
+                lines.push('');
+                for (const tab of form.tabs) {
+                    lines.push(`#### ${tab.label}`);
+                    lines.push('');
+                    for (const section of tab.sections) {
+                        lines.push(`**${section.label}**`);
+                        lines.push('');
+                        if (section.columns.length === 0) {
+                            lines.push('_No fields in this section._');
+                        } else {
+                            lines.push(section.columns.map(c => `- \`${c}\``).join('\n'));
+                        }
+                        lines.push('');
+                    }
+                }
+            }
         }
     }
     // ---- Views ----
