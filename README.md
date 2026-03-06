@@ -19,5 +19,3 @@ See `docs/architecture.jsx` for the full system design (open as a React artifact
 ## Output
 
 Generated docs are written to `./output/`. See `src/config/` for filtering and render options.
-
-test to new ado repo
