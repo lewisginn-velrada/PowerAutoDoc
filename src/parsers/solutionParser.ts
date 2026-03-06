@@ -5,27 +5,16 @@ import { parseEntityViews } from './viewParser.js';
 import { parseEntityForms } from './formParser.js';
 import { parseAllRelationships, getRelationshipsForTable } from './relationshipParser.js';
 import type { TableModel } from '../ir/index.js';
-import {
-    DEFAULT_EXCLUDED_COLUMNS,
-    DEFAULT_EXCLUDE_BASE_CURRENCY_FIELDS,
-    DEFAULT_EXCLUDE_STANDARD_RELATIONSHIPS,
-} from '../config/index.js';
-
-interface ParseOptions {
-    excludedColumns?: Set<string>;
-    customColumnsOnly?: boolean;
-    excludeBaseCurrencyFields?: boolean;
-    excludeStandardRelationships?: boolean;
-}
+import type { DocGenConfig } from '../config/index.js';
 
 export function parseSolution(
     unpackedPath: string,
-    options: ParseOptions = {}
+    config: DocGenConfig
 ): TableModel[] {
-    const excludedColumns = options.excludedColumns ?? DEFAULT_EXCLUDED_COLUMNS;
-    const customColumnsOnly = options.customColumnsOnly ?? false;
-    const excludeBaseCurrency = options.excludeBaseCurrencyFields ?? DEFAULT_EXCLUDE_BASE_CURRENCY_FIELDS;
-    const excludeStandardRelationships = options.excludeStandardRelationships ?? DEFAULT_EXCLUDE_STANDARD_RELATIONSHIPS;
+    const { parse: parseOpts, components } = config;
+
+    const excludedColumns = new Set(parseOpts.excludedColumns);
+    const { customColumnsOnly, excludeBaseCurrencyFields, excludeStandardRelationships } = parseOpts;
 
     const entitiesPath = path.join(unpackedPath, 'Entities');
 
@@ -42,7 +31,7 @@ export function parseSolution(
     console.log(`Found ${entityFolders.length} entities in solution`);
 
     // Parse relationships once up front — they live outside entity folders
-    const allRelationships = parseAllRelationships(unpackedPath);
+    const allRelationships = parseAllRelationships(unpackedPath, config);
 
     const tables: TableModel[] = [];
 
@@ -62,18 +51,21 @@ export function parseSolution(
             table.columns = table.columns.filter(col => {
                 if (excludedColumns.has(col.logicalName)) return false;
                 if (customColumnsOnly && !col.isCustom) return false;
-                if (excludeBaseCurrency && col.logicalName.endsWith('_base') && col.type === 'money') return false;
+                if (excludeBaseCurrencyFields && col.logicalName.endsWith('_base') && col.type === 'money') return false;
                 return true;
             });
 
-            // Wire in views, forms and relationships
-            table.views = parseEntityViews(entityFolderPath);
-            table.forms = parseEntityForms(entityFolderPath);
+            // Wire in views, forms and relationships based on component toggles
+            table.views = components.views ? parseEntityViews(entityFolderPath) : [];
+            table.forms = components.forms ? parseEntityForms(entityFolderPath) : [];
 
-            table.relationships = getRelationshipsForTable(allRelationships, table.logicalName);
-
-            if (excludeStandardRelationships) {
-                table.relationships = table.relationships.filter(r => r.isCustom);
+            if (components.relationships) {
+                table.relationships = getRelationshipsForTable(allRelationships, table.logicalName);
+                if (excludeStandardRelationships) {
+                    table.relationships = table.relationships.filter(r => r.isCustom);
+                }
+            } else {
+                table.relationships = [];
             }
 
             tables.push(table);

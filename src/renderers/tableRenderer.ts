@@ -1,8 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import type { TableModel, ColumnModel, RelationshipModel } from '../ir/index.js';
-
-import { RENDER_OPTIONS } from '../config/index.js';
+import type { DocGenConfig } from '../config/index.js';
 
 function pad(str: string, length: number): string {
     return str.padEnd(length, ' ');
@@ -53,11 +52,9 @@ function renderColumnTable(columns: ColumnModel[]): string {
 
 function renderRelationshipTable(relationships: RelationshipModel[], currentTable: string): string {
     const rows = relationships.map(rel => {
-        // Show the relationship from the perspective of the current table
         const isParent = rel.referencedEntity.toLowerCase() === currentTable.toLowerCase();
         const direction = isParent ? 'One (this) → Many' : 'Many → One (this)';
         const otherTable = isParent ? rel.referencingEntity : rel.referencedEntity;
-
         return [
             rel.name,
             direction,
@@ -66,15 +63,16 @@ function renderRelationshipTable(relationships: RelationshipModel[], currentTabl
             rel.description || '',
         ];
     });
-
     return markdownTable(
         ['Relationship Name', 'Direction', 'Related Table', 'Lookup Field', 'Description'],
         rows
     );
 }
 
-export function renderTableMarkdown(table: TableModel): string {
+export function renderTableMarkdown(table: TableModel, config: DocGenConfig): string {
     const lines: string[] = [];
+    const formLayout = config.render.formLayout;
+    const components = config.components;
 
     // ---- Heading ----
     lines.push(`# ${table.displayName}`);
@@ -131,132 +129,139 @@ export function renderTableMarkdown(table: TableModel): string {
     }
 
     // ---- Relationships ----
-    lines.push('## Relationships');
-    lines.push('');
+    if (components.relationships) {
+        lines.push('## Relationships');
+        lines.push('');
 
-    if (table.relationships.length === 0) {
-        lines.push('_No relationships found._');
-    } else {
-        const customRels = table.relationships.filter(r => r.isCustom);
-        const standardRels = table.relationships.filter(r => !r.isCustom);
+        if (table.relationships.length === 0) {
+            lines.push('_No relationships found._');
+        } else {
+            const customRels = table.relationships.filter(r => r.isCustom);
+            const standardRels = table.relationships.filter(r => !r.isCustom);
 
-        if (customRels.length > 0) {
-            lines.push('### Custom Relationships');
-            lines.push('');
-            lines.push(renderRelationshipTable(customRels, table.logicalName));
-            lines.push('');
-        }
+            if (customRels.length > 0) {
+                lines.push('### Custom Relationships');
+                lines.push('');
+                lines.push(renderRelationshipTable(customRels, table.logicalName));
+                lines.push('');
+            }
 
-        if (standardRels.length > 0) {
-            lines.push('### Standard Relationships');
-            lines.push('');
-            lines.push(renderRelationshipTable(standardRels, table.logicalName));
-            lines.push('');
+            if (standardRels.length > 0) {
+                lines.push('### Standard Relationships');
+                lines.push('');
+                lines.push(renderRelationshipTable(standardRels, table.logicalName));
+                lines.push('');
+            }
         }
     }
+
     // ---- Forms ----
-    lines.push('## Forms');
-    lines.push('');
-
-    if (table.forms.length === 0) {
-        lines.push('_No forms found._');
-    } else {
-        const formRows = table.forms.map(f => [
-            f.name,
-            f.type,
-            f.tabs.length.toString(),
-            f.tabs.reduce((acc, t) => acc + t.sections.reduce((s, sec) => s + sec.columns.length, 0), 0).toString(),
-        ]);
-        lines.push(markdownTable(
-            ['Form Name', 'Type', 'Tab Count', 'Total Fields'],
-            formRows
-        ));
+    if (components.forms) {
+        lines.push('## Forms');
         lines.push('');
 
-        if (RENDER_OPTIONS.formLayout === 'detailed') {
-            for (const form of table.forms) {
-                lines.push(`### ${form.name} (${form.type})`);
-                lines.push('');
-                for (const tab of form.tabs) {
-                    lines.push(`#### ${tab.label}`);
+        if (table.forms.length === 0) {
+            lines.push('_No forms found._');
+        } else {
+            const formRows = table.forms.map(f => [
+                f.name,
+                f.type,
+                f.tabs.length.toString(),
+                f.tabs.reduce((acc, t) => acc + t.sections.reduce((s, sec) => s + sec.columns.length, 0), 0).toString(),
+            ]);
+            lines.push(markdownTable(
+                ['Form Name', 'Type', 'Tab Count', 'Total Fields'],
+                formRows
+            ));
+            lines.push('');
+
+            if (formLayout === 'detailed') {
+                for (const form of table.forms) {
+                    lines.push(`### ${form.name} (${form.type})`);
                     lines.push('');
-                    for (const section of tab.sections) {
-                        lines.push(`**${section.label}**`);
+                    for (const tab of form.tabs) {
+                        lines.push(`#### ${tab.label}`);
                         lines.push('');
-                        if (section.columns.length === 0) {
-                            lines.push('_No fields in this section._');
-                        } else {
-                            lines.push(section.columns.map(c => `- \`${c}\``).join('\n'));
+                        for (const section of tab.sections) {
+                            lines.push(`**${section.label}**`);
+                            lines.push('');
+                            if (section.columns.length === 0) {
+                                lines.push('_No fields in this section._');
+                            } else {
+                                lines.push(section.columns.map(c => `- \`${c}\``).join('\n'));
+                            }
+                            lines.push('');
                         }
-                        lines.push('');
                     }
                 }
             }
         }
     }
-    // ---- Views ----
-    lines.push('## Views');
-    lines.push('');
 
-    if (table.views.length === 0) {
-        lines.push('_No views found._');
-    } else {
-        const viewRows = table.views.map(v => [
-            v.name,
-            v.type,
-            v.isDefault ? 'Yes' : 'No',
-            v.columns.length.toString(),
-            v.description || '',
-        ]);
-        lines.push(markdownTable(
-            ['View Name', 'Type', 'Default', 'Column Count', 'Description'],
-            viewRows
-        ));
+    // ---- Views ----
+    if (components.views) {
+        lines.push('## Views');
         lines.push('');
 
-        for (const view of table.views) {
-            lines.push(`### ${view.name}`);
-            lines.push('');
-            lines.push(`**Type:** ${view.type}`);
-            if (view.description) lines.push(`**Notes:** ${view.description}`);
+        if (table.views.length === 0) {
+            lines.push('_No views found._');
+        } else {
+            const viewRows = table.views.map(v => [
+                v.name,
+                v.type,
+                v.isDefault ? 'Yes' : 'No',
+                v.columns.length.toString(),
+                v.description || '',
+            ]);
+            lines.push(markdownTable(
+                ['View Name', 'Type', 'Default', 'Column Count', 'Description'],
+                viewRows
+            ));
             lines.push('');
 
-            if (view.filters.length > 0) {
-                lines.push('**Filters:**');
+            for (const view of table.views) {
+                lines.push(`### ${view.name}`);
                 lines.push('');
-                for (const f of view.filters) {
-                    const indent = '  '.repeat(f.depth);
-                    const value = f.value ? ` \`${f.value}\`` : '';
-                    if (f.isJoin) {
-                        const joinLabel = f.joinType === 'inner' ? 'inner join' : 'outer join';
-                        const field = f.joinField ? ` via \`${f.joinField}\`` : '';
-                        lines.push(`${indent}- **${f.attribute}**${field} — ${joinLabel}`);
-                    } else {
-                        const groupPrefix = f.filterType === 'or' ? '*(or)* ' : '';
-                        lines.push(`${indent}- ${groupPrefix}\`${f.attribute}\` ${f.operator}${value}`);
+                lines.push(`**Type:** ${view.type}`);
+                if (view.description) lines.push(`**Notes:** ${view.description}`);
+                lines.push('');
+
+                if (view.filters.length > 0) {
+                    lines.push('**Filters:**');
+                    lines.push('');
+                    for (const f of view.filters) {
+                        const indent = '  '.repeat(f.depth);
+                        const value = f.value ? ` \`${f.value}\`` : '';
+                        if (f.isJoin) {
+                            const joinLabel = f.joinType === 'inner' ? 'inner join' : 'outer join';
+                            const field = f.joinField ? ` via \`${f.joinField}\`` : '';
+                            lines.push(`${indent}- **${f.attribute}**${field} — ${joinLabel}`);
+                        } else {
+                            const groupPrefix = f.filterType === 'or' ? '*(or)* ' : '';
+                            lines.push(`${indent}- ${groupPrefix}\`${f.attribute}\` ${f.operator}${value}`);
+                        }
                     }
+                    lines.push('');
+                }
+
+                if (view.columns.length === 0) {
+                    lines.push('**Columns:** _none_');
+                } else {
+                    lines.push('**Columns:** ' + view.columns.map(c => `\`${c}\``).join(', '));
                 }
                 lines.push('');
             }
-
-            if (view.columns.length === 0) {
-                lines.push('**Columns:** _none_');
-            } else {
-                lines.push('**Columns:** ' + view.columns.map(c => `\`${c}\``).join(', '));
-            }
-            lines.push('');
         }
     }
 
     return lines.join('\n');
 }
 
-export function writeTableMarkdown(table: TableModel, outputDir: string): void {
+export function writeTableMarkdown(table: TableModel, outputDir: string, config: DocGenConfig): void {
     fs.mkdirSync(outputDir, { recursive: true });
     const filename = `${table.logicalName}.md`;
     const filepath = path.join(outputDir, filename);
-    // Force \n line endings — Windows Node can produce \r\n which breaks ADO Wiki tables
-    const content = renderTableMarkdown(table).replace(/\r\n/g, '\n');
+    const content = renderTableMarkdown(table, config).replace(/\r\n/g, '\n');
     fs.writeFileSync(filepath, content, 'utf-8');
     console.log(`Written: ${filepath}`);
 }

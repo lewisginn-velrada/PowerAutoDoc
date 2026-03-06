@@ -2,6 +2,7 @@ import { XMLParser } from 'fast-xml-parser';
 import * as fs from 'fs';
 import * as path from 'path';
 import type { RelationshipModel } from '../ir/index.js';
+import type { DocGenConfig } from '../config/index.js';
 
 const parser = new XMLParser({
     attributeNamePrefix: '@_',
@@ -15,8 +16,7 @@ function getEnglishDescription(relationshipDescription: any): string {
     return english?.['@_description'] ?? '';
 }
 
-// Parses a single relationship XML file — each file is named after the related entity
-function parseRelationshipFile(filePath: string): RelationshipModel[] {
+function parseRelationshipFile(filePath: string, publisherPrefix: string): RelationshipModel[] {
     const raw = fs.readFileSync(filePath, 'utf-8');
     const parsed = parser.parse(raw);
 
@@ -31,9 +31,11 @@ function parseRelationshipFile(filePath: string): RelationshipModel[] {
         const referencingAttribute: string = rel.ReferencingAttributeName ?? '';
         const description = getEnglishDescription(rel.RelationshipDescription);
 
-        // Determine if this is a custom relationship by checking the referencing attribute
-        // Custom ones have the publisher prefix on the attribute name
-        const isCustom = referencingAttribute.toLowerCase().startsWith('vel_');
+        // Use publisherPrefix from config — fallback to checking for any underscore prefix
+        // if prefix is not configured (handles the warning case in loader.ts)
+        const isCustom = publisherPrefix
+            ? referencingAttribute.toLowerCase().startsWith(`${publisherPrefix.toLowerCase()}_`)
+            : referencingAttribute.includes('_') && !referencingAttribute.startsWith('ms');
 
         results.push({
             name,
@@ -49,8 +51,10 @@ function parseRelationshipFile(filePath: string): RelationshipModel[] {
     return results;
 }
 
-// Reads all relationship files from Other/Relationships/ and returns a flat list
-export function parseAllRelationships(unpackedPath: string): RelationshipModel[] {
+export function parseAllRelationships(
+    unpackedPath: string,
+    config: DocGenConfig
+): RelationshipModel[] {
     const relationshipsPath = path.join(unpackedPath, 'Other', 'Relationships');
 
     if (!fs.existsSync(relationshipsPath)) {
@@ -64,12 +68,13 @@ export function parseAllRelationships(unpackedPath: string): RelationshipModel[]
 
     console.log(`Found ${files.length} relationship files`);
 
+    const publisherPrefix = config.solution.publisherPrefix;
     const all: RelationshipModel[] = [];
 
     for (const file of files) {
         const filePath = path.join(relationshipsPath, file);
         try {
-            const rels = parseRelationshipFile(filePath);
+            const rels = parseRelationshipFile(filePath, publisherPrefix);
             all.push(...rels);
         } catch (err) {
             console.error(`Failed to parse relationships file: ${file}`, err);
@@ -79,8 +84,6 @@ export function parseAllRelationships(unpackedPath: string): RelationshipModel[]
     return all;
 }
 
-// Filters the full relationship list down to those relevant to a specific table.
-// A table is involved if it appears on either side of the relationship.
 export function getRelationshipsForTable(
     allRelationships: RelationshipModel[],
     tableLogicalName: string

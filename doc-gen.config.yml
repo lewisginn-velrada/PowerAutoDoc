@@ -1,0 +1,49 @@
+# doc-gen.config.yml
+# vel-docgen configuration — copy this to your client project root and customise
+
+solution:
+  # Path to the unpacked solution folder (relative to this config file)
+  unpackedPath: ./unpacked
+  # Your publisher prefix — used to detect custom columns, tables and relationships
+  publisherPrefix: vel
+
+output:
+  # Where to write generated markdown files
+  path: ./output
+
+parse:
+  # Set to true to only include custom columns in table pages
+  customColumnsOnly: false
+  # Strip _base currency mirror fields (e.g. vel_amount_base)
+  excludeBaseCurrencyFields: true
+  # Strip standard OOB relationships from table pages
+  excludeStandardRelationships: true
+  # Additional columns to exclude by logical name
+  excludedColumns:
+    - timezoneruleversionnumber
+    - utcconversiontimezonecode
+    - importsequencenumber
+    - overriddencreatedon
+    - exchangerate
+    - transactioncurrencyid
+    - owningteam
+    - owninguser
+    - owningbusinessunit
+    - createdonbehalfby
+    - modifiedonbehalfby
+    - versionnumber
+
+render:
+  # compact = summary table only, detailed = full tab/section breakdown
+  formLayout: compact
+
+components:
+  # Toggle each section on/off — set to false to skip that component entirely
+  tables: true
+  forms: true
+  views: true
+  relationships: true
+  flows: true       # Phase 3 — not yet built
+  plugins: false     # Phase 3 — not yet built
+  webResources: false # Phase 3 — not yet built
+  security: false    # Phase 3 — not yet built
