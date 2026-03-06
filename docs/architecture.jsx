@@ -18,7 +18,7 @@ const layers = [
     components: [
       { name: "Solution ZIPs", icon: "📦", detail: "Unpacked via pac CLI before the tool runs. Contains all component folders, solution.xml, relationships.", tags: ["XML", "pac CLI"], done: true, moscow: "M" },
       { name: "Flat XML Exports", icon: "🗂️", detail: "Pre-extracted XML files per component. Entities, forms, views, saved queries, relationships all parsed.", tags: ["XML", "Structured"], done: true, moscow: "M" },
-      { name: "Power Automate Flows", icon: "🔄", detail: "Flow JSON exported with solution. Trigger, actions, conditions extracted into FlowModel IR.", tags: ["JSON"], done: false, moscow: "S" },
+      { name: "Power Automate Flows", icon: "🔄", detail: "Flow JSON exported with solution. Trigger, actions, conditions extracted into FlowModel IR.", tags: ["JSON"], done: true, moscow: "S" },
       { name: "Plugins & Assemblies", icon: "⚙️", detail: "Plugin step registrations from solution XML. Assembly metadata, entity/message/stage bindings.", tags: ["C#", "XML"], done: false, moscow: "S" },
       { name: "Web Resources (JS)", icon: "📜", detail: "JavaScript files from WebResources folder. JSDoc comments, Xrm API calls, event handler registrations extracted per file.", tags: ["JS", "XML"], done: false, moscow: "S" },
       { name: "PCF Controls", icon: "🧩", detail: "Power Apps Component Framework controls unpacked from solution. Manifest, component metadata extracted.", tags: ["JSON", "XML"], done: false, moscow: "C" },
@@ -37,7 +37,7 @@ const layers = [
       { name: "View Parser", icon: "👁️", detail: "Parses SavedQuery XML. View type detection, columns, filter conditions including nested link-entity joins with depth tracking and alias resolution.", tags: ["Core"], done: true, moscow: "M" },
       { name: "Form Parser", icon: "📋", detail: "Parses FormXml for Main, Quick Create and Card forms. Extracts tabs, sections, fields and header fields. Inactive forms skipped.", tags: ["Core"], done: true, moscow: "M" },
       { name: "Relationship Parser", icon: "↔️", detail: "Reads Other/Relationships XML files. OneToMany resolved from both perspectives. Custom vs standard detection. Direction-aware rendering.", tags: ["Core"], done: true, moscow: "M" },
-      { name: "Flow / Workflow Parser", icon: "🔄", detail: "Modern flows from JSON. Classic workflows from XML. Extracts trigger, steps, conditions into FlowModel.", tags: ["Core"], done: false, moscow: "S" },
+      { name: "Flow / Workflow Parser", icon: "🔄", detail: "Modern flows from JSON. Classic workflows from XML. Extracts trigger, steps, conditions into FlowModel.", tags: ["Core"], done: true, moscow: "S" },
       { name: "Plugin Parser", icon: "🔌", detail: "Plugin assemblies and SDK message processing steps. Entity, message, stage, order, filter expressions.", tags: ["Core"], done: false, moscow: "S" },
       { name: "Web Resource Analyser", icon: "📜", detail: "Parses JS files for JSDoc comments, Xrm.Page / Xrm.WebApi calls, form event registrations. Extracts function signatures.", tags: ["JS"], done: false, moscow: "S" },
       { name: "PCF Parser", icon: "🧩", detail: "Reads ControlManifest.xml. Extracts component name, properties, data types.", tags: ["XML"], done: false, moscow: "C" },
@@ -56,7 +56,7 @@ const layers = [
       { name: "FormModel + ViewModel", icon: "🖼️", detail: "Forms with tabs/sections/fields. Views with typed filter conditions, nested join support, isDefault/isQuickFind flags.", tags: ["ir/form.ts", "ir/view.ts"], done: true, moscow: "M" },
       { name: "RelationshipModel", icon: "↔️", detail: "OneToMany with referencing/referenced entity, lookup field, direction perspective, isCustom flag.", tags: ["ir/relationship.ts"], done: true, moscow: "M" },
       { name: "ViewFilterCondition", icon: "🔍", detail: "Filter conditions with depth tracking. isJoin flag for link-entity rows. joinField for readable column prefixing.", tags: ["ir/view.ts"], done: true, moscow: "M" },
-      { name: "FlowModel", icon: "🔀", detail: "Trigger type, entity, steps with human-readable action descriptions. Mermaid-ready structure.", tags: ["ir/flow.ts"], done: false, moscow: "S" },
+      { name: "FlowModel", icon: "🔀", detail: "Trigger type, entity, steps with human-readable action descriptions. Mermaid-ready structure.", tags: ["ir/flow.ts"], done: true, moscow: "S" },
       { name: "PluginModel", icon: "🔌", detail: "Assembly, class, step registrations with entity + message + stage + order.", tags: ["ir/plugin.ts"], done: false, moscow: "S" },
       { name: "WebResourceModel", icon: "📜", detail: "Per-file model. Functions with JSDoc, Xrm API calls detected, event bindings, dependencies.", tags: ["ir/webresource.ts"], done: false, moscow: "S" },
       { name: "PCFModel", icon: "🧩", detail: "Component manifest metadata, property definitions, data types.", tags: ["ir/pcf.ts"], done: false, moscow: "C" },
@@ -97,7 +97,7 @@ const layers = [
     description: "Azure DevOps YAML templates — reusable across all client projects",
     components: [
       { name: "Pipeline Template", icon: "🏭", detail: "Reusable YAML template in vel-docgen repo. Client projects reference it by version. No copy-paste.", tags: ["ADO YAML"], done: false, moscow: "S" },
-      { name: "doc-gen.config.yml", icon: "⚙️", detail: "Per-project config. Multi-solution support with roles (datamodel/plugins/flows). Filtering, render options, wiki target path.", tags: ["Config"], done: false, moscow: "M" },
+      { name: "doc-gen.config.yml", icon: "⚙️", detail: "Per-project config. Multi-solution support with roles (datamodel/plugins/flows). Filtering, render options, wiki target path.", tags: ["Config"], done: true, moscow: "M" },
       { name: "Trigger Strategy", icon: "⚡", detail: "On push to main, on PR, scheduled nightly, or manual dispatch. Configurable per project.", tags: ["Trigger"], done: false, moscow: "S" },
       { name: "IR Artifact Store", icon: "💾", detail: "IR JSON snapshot published as pipeline artifact. Enables diffing, debugging, re-runs from cache.", tags: ["Artefact"], done: false, moscow: "C" },
     ]
@@ -117,6 +117,7 @@ const pages = [
 ];
 
 const decisions = [
+  { q: "Flow action detail depth?", a: "Basic for now, enrichment later", reason: "Current parser extracts action names, descriptions and field mappings. Complex expressions, conditions and loops need enrichment layer analysis to render meaningfully. Parked for Phase 3 enrichment work." },
   { q: "Language / Runtime?", a: "TypeScript / Node.js", reason: "Confirmed. Typed IR interfaces catch errors at compile time. tsx for fast dev iteration. NodeNext module resolution." },
   { q: "Markdown templating?", a: "String builder (no engine)", reason: "Confirmed. Pure TypeScript string arrays with a markdownTable() helper. Simpler, fully typed, no Handlebars dependency." },
   { q: "Multi-solution projects?", a: "Config-driven (Option A)", reason: "Confirmed. doc-gen.config.yml lists solutions with roles: datamodel / plugins / flows. Tool merges IR across solutions into one wiki." },
@@ -160,7 +161,7 @@ const progress = [
   {
     phase: "Phase 3 — Automation, Code & Security", color: "#A020C0", status: "NEXT",
     items: [
-      { label: "Flow parser (Power Automate)", done: false },
+      { label: "Flow parser (Power Automate)", done: true },
       { label: "Classic workflow parser", done: false },
       { label: "Plugin step parser", done: false },
       { label: "JavaScript WebResource parser", done: false },
@@ -172,9 +173,9 @@ const progress = [
     ]
   },
   {
-    phase: "Phase 4 — Pipeline & Reusability", color: "#0E9E8E", status: "PLANNED",
+    phase: "Phase 4 — Pipeline & Reusability", color: "#0E9E8E", status: "IN PROGRESS",
     items: [
-      { label: "doc-gen.config.yml schema + parser", done: false },
+      { label: "doc-gen.config.yml schema + parser", done: true },
       { label: "Multi-solution support (Option A)", done: false },
       { label: "ADO Wiki REST API publisher", done: false },
       { label: "Azure DevOps pipeline YAML template", done: false },
@@ -266,7 +267,7 @@ export default function App() {
             </div>
             <span style={{ fontSize: 10, color: "#9080a8", letterSpacing: "0.08em" }}>
               <span style={{ color: "#7B2D8B", fontWeight: 600 }}>{doneComponents}</span>/{totalComponents} components built &nbsp;·&nbsp;
-              <span style={{ color: "#0E9E8E", fontWeight: 600 }}>Phases 1 & 2 complete</span>
+              <span style={{ color: "#0E9E8E", fontWeight: 600 }}>Phases 1 & 2 complete · Phase 4 started</span>
             </span>
           </div>
 
@@ -418,8 +419,7 @@ export default function App() {
               <div style={{ background: "#f7eefa", border: "1px solid #d4b8e0", borderRadius: 6, padding: 14, fontSize: 11, color: "#6a3880", lineHeight: 1.7 }}>
                 💡 <strong style={{ color: "#7B2D8B" }}>Phases 1 & 2 are complete and producing real output.</strong> The core data model
                 documentation — tables, columns, relationships, forms and views — all parse and render correctly
-                to ADO Wiki-compatible markdown. Phase 3 adds automation and code docs. Phase 4 makes it
-                production-grade reusable infrastructure.
+                to ADO Wiki-compatible markdown. Phase 3 is underway — Flow Parser is complete. Phase 4 has started with the config system.
               </div>
             </div>
           )}
