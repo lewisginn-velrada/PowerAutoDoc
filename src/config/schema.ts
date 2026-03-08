@@ -42,4 +42,18 @@ export interface DocGenConfig {
     webResources: boolean;
     security: boolean;
   };
+
+  wiki?: WikiConfig;
+}
+export interface WikiConfig {
+  /** ADO organisation name e.g. VelLab */
+  organisation: string;
+  /** ADO project name e.g. Velrada-DocGen */
+  project: string;
+  /** Wiki identifier e.g. Velrada-DocGen.wiki */
+  wikiIdentifier: string;
+  /** Parent page path e.g. /Leave Management (App) */
+  parentPath: string;
+  /** Personal Access Token — move to env var before pipeline */
+  pat: string;
 }
