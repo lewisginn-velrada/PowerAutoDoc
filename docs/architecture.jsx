@@ -391,6 +391,7 @@ export default function App() {
                 const statusStyle = {
                   "COMPLETE": { bg: "#eaf7f0", color: "#0E9E8E", border: "#0E9E8E40" },
                   "NEXT": { bg: "#f7eefa", color: "#7B2D8B", border: "#7B2D8B40" },
+                  "IN PROGRESS": { bg: "#fdf6e3", color: "#D4880A", border: "#D4880A40" },
                   "PLANNED": { bg: "#f4f2f7", color: "#9080a8", border: "#ddd6e8" },
                 }[p.status];
                 return (

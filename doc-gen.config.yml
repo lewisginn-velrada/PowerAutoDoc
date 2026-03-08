@@ -47,3 +47,10 @@ components:
   plugins: false     # Phase 3 — not yet built
   webResources: false # Phase 3 — not yet built
   security: false    # Phase 3 — not yet built
+
+wiki:
+  organisation: VelLab
+  project: Velrada-DocGen
+  wikiIdentifier: Velrada-DocGen.wiki
+  parentPath: /Leave Management (App)
+  pat: REDACTED
