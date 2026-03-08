@@ -3,7 +3,7 @@ import type { SolutionModel, FlowModel } from '../ir/index.js';
 import type { WikiPage } from './wikiPublisher.js';
 import { renderOverviewMarkdown } from '../renderers/index.js';
 import { renderTableMarkdown } from '../renderers/index.js';
-import { renderFlowMarkdown } from '../renderers/index.js';
+import { renderFlowSummaryMarkdown, renderSingleFlowMarkdown } from '../renderers/index.js';
 
 /**
  * Builds the full ordered list of wiki pages from parsed IR.
@@ -49,10 +49,20 @@ export function buildWikiPages(
       content: `# Automation\n\nPower Automate flows and classic workflows in this solution.\n`,
     });
 
+    // Flows index — summary table with links to child pages
+    const flowsBasePath = `${base}/Automation/Flows`;
     pages.push({
-      path: `${base}/Automation/Flows`,
-      content: renderFlowMarkdown(flows),
+      path: flowsBasePath,
+      content: renderFlowSummaryMarkdown(flows, flowsBasePath),
     });
+
+    // One page per flow
+    for (const flow of flows) {
+      pages.push({
+        path: `${flowsBasePath}/${flow.name}`,
+        content: renderSingleFlowMarkdown(flow),
+      });
+    }
   }
 
   return pages;
