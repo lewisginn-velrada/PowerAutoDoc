@@ -27,7 +27,7 @@ export function renderFlowSummaryMarkdown(flows: FlowModel[], basePath?: string)
 
   lines.push('# Power Automate Flows');
   lines.push('');
-  lines.push('[[_TOC_]]');
+  lines.push('[[_TOSP_]]');
   lines.push('');
 
   if (flows.length === 0) {
