@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import type { FlowModel, FlowActionModel } from '../ir/index.js';
+import { toADOWikiLink } from './rendererUtils.js';
 
 function pad(str: string, length: number): string {
   return str.padEnd(length, ' ');
@@ -24,10 +25,8 @@ function markdownTable(headers: string[], rows: string[][]): string {
 // -----------------------------------------------
 export function renderFlowSummaryMarkdown(flows: FlowModel[], basePath?: string): string {
   const lines: string[] = [];
-
+  
   lines.push('# Power Automate Flows');
-  lines.push('');
-  lines.push('[[_TOSP_]]');
   lines.push('');
 
   if (flows.length === 0) {
@@ -40,7 +39,7 @@ export function renderFlowSummaryMarkdown(flows: FlowModel[], basePath?: string)
 
   const summaryRows = flows.map(f => {
     const linkName = basePath
-      ? `[${f.name}](${basePath}/${f.name})`
+      ? `[${f.name}](${toADOWikiLink(`${basePath}/${f.name}`)})`
       : f.name;
     return [
       linkName,

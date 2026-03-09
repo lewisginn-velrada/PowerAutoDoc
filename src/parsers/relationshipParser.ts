@@ -53,7 +53,8 @@ function parseRelationshipFile(filePath: string, publisherPrefix: string): Relat
 
 export function parseAllRelationships(
     unpackedPath: string,
-    config: DocGenConfig
+    config: DocGenConfig,
+    publisherPrefix: string  
 ): RelationshipModel[] {
     const relationshipsPath = path.join(unpackedPath, 'Other', 'Relationships');
 
@@ -68,7 +69,6 @@ export function parseAllRelationships(
 
     console.log(`Found ${files.length} relationship files`);
 
-    const publisherPrefix = config.solution.publisherPrefix;
     const all: RelationshipModel[] = [];
 
     for (const file of files) {

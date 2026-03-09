@@ -1,50 +1,89 @@
 import { loadConfig } from './config/index.js';
 import { parseSolution, parseSolutionManifest } from './parsers/index.js';
-import { writeTableMarkdown, writeOverviewMarkdown } from './renderers/index.js';
+import { writeTableMarkdown, writeOverviewMarkdown, writePluginMarkdown } from './renderers/index.js';
 import { parseAllFlows } from './parsers/index.js';
 import { writeFlowMarkdown } from './renderers/index.js';
 import { publishToWiki } from './publisher/wikiPublisher.js';
 import { buildWikiPages } from './publisher/wikiAssembler.js';
+import type { SolutionModel } from './ir/index.js';
+import type { FlowModel } from './ir/index.js';
+import { parseAllPlugins } from './parsers/index.js';
+import type { PluginAssemblyModel } from './ir/index.js';
 
 async function main() {
-  // Load config from doc-gen.config.yml in the current working directory
   const config = loadConfig();
-
-  const { unpackedPath } = config.solution;
   const { path: outputPath } = config.output;
 
-  // Parse manifest for solution metadata
-  const solution = parseSolutionManifest(unpackedPath);
+  let mergedSolution: SolutionModel | null = null;
+  const allSolutions: SolutionModel[] = [];
+  const allFlows: FlowModel[] = [];
+  const allPluginAssemblies: PluginAssemblyModel[] = [];
 
-  // Parse all tables — config drives all filtering and component toggles
-  const tables = parseSolution(unpackedPath, config);
+  for (const solutionEntry of config.solutions) {
+    const { path: unpackedPath, role, publisherPrefix } = solutionEntry;
 
-  // Attach tables to solution model for overview
-  solution.tables = tables;
+    console.log(`\nProcessing solution: ${unpackedPath} (role: ${role})`);
 
-  // Write overview page
-  writeOverviewMarkdown(solution, outputPath);
+    const solConfig = {
+      ...config,
+      solution: {
+        unpackedPath,
+        publisherPrefix,
+      },
+    };
 
-  // Write per-table pages
-  if (config.components.tables) {
-    for (const table of tables) {
-      writeTableMarkdown(table, `${outputPath}/tables`, config);
+    const isDataModel = role === 'datamodel' || role === 'all';
+    const isFlows = role === 'flows' || role === 'all';
+    const isPlugins = role === 'plugins' || role === 'all';
+    const isWebResources = role === 'webresources' || role === 'all';
+
+    // ---- Data model ----
+    if (isDataModel) {
+      const manifest = parseSolutionManifest(unpackedPath);
+      const tables = parseSolution(unpackedPath, solConfig, publisherPrefix);
+
+      manifest.tables = tables;
+      allSolutions.push(manifest);
+
+      if (!mergedSolution) {
+        mergedSolution = manifest;
+      } else {
+        mergedSolution.tables = [...mergedSolution.tables, ...tables];
+      }
+
+      writeOverviewMarkdown(manifest, outputPath);
+
+      if (config.components.tables) {
+        for (const table of tables) {
+          writeTableMarkdown(table, `${outputPath}/tables`, solConfig);
+        }
+      }
+    }
+
+    // ---- Flows ----
+    if (isFlows && config.components.flows) {
+      const flows = parseAllFlows(unpackedPath);
+      allFlows.push(...flows);
+      writeFlowMarkdown(flows, outputPath);
+    }
+
+    // ---- Plugins ----
+    if (isPlugins && config.components.plugins) {
+      const assemblies = parseAllPlugins(unpackedPath);
+      allPluginAssemblies.push(...assemblies);
+      writePluginMarkdown(assemblies, outputPath);
+      console.log(`  Parsed ${assemblies.length} plugin assemblies from: ${unpackedPath}`);
+    }
+
+    // ---- Web Resources ---- (Phase 3 — parser not yet built)
+    if (isWebResources && config.components.webResources) {
+      console.log(`  Web resource parsing not yet implemented for: ${unpackedPath}`);
     }
   }
 
-  // Parse flows — hoisted so publisher can access them
-  const flows = config.components.flows
-    ? parseAllFlows(config.solution.unpackedPath)
-    : [];
-
-  // Write flow markdown locally
-  if (flows.length > 0) {
-    writeFlowMarkdown(flows, outputPath);
-  }
-
-  // Publish to ADO Wiki if configured
-  if (config.wiki) {
-    const pages = buildWikiPages(config, solution, flows);
+  // ---- Wiki publish ----
+  if (config.wiki && mergedSolution) {
+    const pages = buildWikiPages(config, allSolutions, mergedSolution, allFlows, allPluginAssemblies);
     await publishToWiki(config.wiki, pages);
   }
 }

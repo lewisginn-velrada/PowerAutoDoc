@@ -9,7 +9,8 @@ import type { DocGenConfig } from '../config/index.js';
 
 export function parseSolution(
     unpackedPath: string,
-    config: DocGenConfig
+    config: DocGenConfig,
+    publisherPrefix: string
 ): TableModel[] {
     const { parse: parseOpts, components } = config;
 
@@ -31,7 +32,7 @@ export function parseSolution(
     console.log(`Found ${entityFolders.length} entities in solution`);
 
     // Parse relationships once up front — they live outside entity folders
-    const allRelationships = parseAllRelationships(unpackedPath, config);
+    const allRelationships = parseAllRelationships(unpackedPath, config, publisherPrefix);
 
     const tables: TableModel[] = [];
 

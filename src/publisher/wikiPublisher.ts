@@ -28,6 +28,61 @@ function buildAuthHeader(pat: string): string {
 }
 
 // -----------------------------------------------
+// Sort pages so siblings publish Z→A
+// ADO sidebar shows newest-first, so Z→A publish = A→Z display
+// Parents are always published before their children
+// -----------------------------------------------
+function sortPagesForPublish(pages: WikiPage[]): WikiPage[] {
+  const pagePaths = new Set(pages.map(p => p.path));
+
+  // Group pages by parent path
+  const grouped = new Map<string, WikiPage[]>();
+  for (const page of pages) {
+    const parts = page.path.split('/').filter(Boolean);
+    const parent = '/' + parts.slice(0, -1).join('/');
+    const siblings = grouped.get(parent) ?? [];
+    siblings.push(page);
+    grouped.set(parent, siblings);
+  }
+
+  const result: WikiPage[] = [];
+  const visited = new Set<string>();
+
+  function visit(page: WikiPage) {
+    if (visited.has(page.path)) return;
+    visited.add(page.path);
+
+    // Publish parent first, then children in reverse alpha order
+    result.push(page);
+
+    const children = grouped.get(page.path) ?? [];
+    const sorted = [...children].sort((a, b) => b.path.localeCompare(a.path));
+    for (const child of sorted) {
+      visit(child);
+    }
+  }
+
+  // Start from root pages (whose parent is not in the pages list)
+  const roots = pages.filter(p => {
+    const parts = p.path.split('/').filter(Boolean);
+    const parent = '/' + parts.slice(0, -1).join('/');
+    return !pagePaths.has(parent);
+  });
+
+  roots.sort((a, b) => b.path.localeCompare(a.path));
+  for (const root of roots) {
+    visit(root);
+  }
+
+  // Safety net — append anything not reached
+  for (const page of pages) {
+    if (!visited.has(page.path)) result.push(page);
+  }
+
+  return result;
+}
+
+// -----------------------------------------------
 // GET page — returns eTag if exists, null if 404
 // -----------------------------------------------
 async function getPage(config: WikiConfig, pagePath: string): Promise<WikiPageGetResult | null> {
@@ -68,8 +123,6 @@ async function putPage(
     'Content-Type': 'application/json',
   };
 
-  // Only send If-Match when updating an existing page
-  // For new pages, omit the header entirely — ADO rejects '*'
   if (eTag) {
     headers['If-Match'] = eTag;
   }
@@ -130,8 +183,11 @@ export async function publishToWiki(
     }
   }
 
+  // Sort pages so siblings publish Z→A → display A→Z in ADO sidebar
+  const sortedPages = sortPagesForPublish(pages);
+
   // Publish all pages — always overwrite
-  for (const page of pages) {
+  for (const page of sortedPages) {
     try {
       const existing = await getPage(config, page.path);
       await putPage(config, page.path, page.content, existing?.eTag);

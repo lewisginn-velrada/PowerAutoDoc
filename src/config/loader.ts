@@ -19,10 +19,13 @@ const DEFAULT_EXCLUDED_COLUMNS = [
 ];
 
 export const CONFIG_DEFAULTS: DocGenConfig = {
-  solution: {
-    unpackedPath: './unpacked',
-    publisherPrefix: '',
-  },
+  solutions: [
+    {
+      path: './unpacked',
+      publisherPrefix: '',
+      role: 'all',
+    },
+  ],
   output: {
     path: './output',
   },
@@ -87,8 +90,8 @@ export function loadConfig(configDir: string = process.cwd()): DocGenConfig {
   }
 
   const raw = fs.readFileSync(configPath, 'utf-8');
-
   let parsed: unknown;
+
   try {
     parsed = yaml.load(raw);
   } catch (err) {
@@ -101,12 +104,14 @@ export function loadConfig(configDir: string = process.cwd()): DocGenConfig {
 
   const merged = deepMerge(CONFIG_DEFAULTS, parsed as Partial<DocGenConfig>);
 
-  // Validate publisherPrefix is set — warn if missing since isCustom detection depends on it
-  if (!merged.solution.publisherPrefix) {
-    console.warn(
-      'Warning: solution.publisherPrefix is not set in doc-gen.config.yml. ' +
-      'Custom component detection will not work correctly.'
-    );
+  // Validate each solution entry has a publisherPrefix
+  for (const sol of merged.solutions) {
+    if (!sol.publisherPrefix) {
+      console.warn(
+        `Warning: solution "${sol.path}" has no publisherPrefix. ` +
+        'Custom component detection will not work correctly.'
+      );
+    }
   }
 
   console.log(`Loaded config from: ${configPath}`);

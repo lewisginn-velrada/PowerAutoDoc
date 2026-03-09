@@ -2,13 +2,22 @@
  * Shape of doc-gen.config.yml
  * All fields are optional — loader merges with defaults.
  */
+
+export type SolutionRole = 'datamodel' | 'flows' | 'plugins' | 'webresources' | 'security' | 'all';
+
+export interface SolutionEntry {
+  /** Path to the unpacked solution folder (relative to config file) */
+  path: string;
+  /** Publisher prefix used to detect custom components e.g. 'vel' */
+  publisherPrefix: string;
+  /** What this solution contributes to the docs */
+  role: SolutionRole;
+  /** Optional display name — used in wiki headings. Defaults to folder name. */
+  displayName?: string;
+}
+
 export interface DocGenConfig {
-  solution: {
-    /** Path to the unpacked solution folder */
-    unpackedPath: string;
-    /** Publisher prefix used to detect custom components (e.g. 'vel') */
-    publisherPrefix: string;
-  };
+  solutions: SolutionEntry[];
 
   output: {
     /** Directory to write generated markdown files */
@@ -45,6 +54,7 @@ export interface DocGenConfig {
 
   wiki?: WikiConfig;
 }
+
 export interface WikiConfig {
   /** ADO organisation name e.g. VelLab */
   organisation: string;

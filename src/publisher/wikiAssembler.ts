@@ -1,18 +1,17 @@
 import type { DocGenConfig } from '../config/index.js';
-import type { SolutionModel, FlowModel } from '../ir/index.js';
+import type { SolutionModel, FlowModel, PluginAssemblyModel } from '../ir/index.js';
 import type { WikiPage } from './wikiPublisher.js';
 import { renderOverviewMarkdown } from '../renderers/index.js';
 import { renderTableMarkdown } from '../renderers/index.js';
 import { renderFlowSummaryMarkdown, renderSingleFlowMarkdown } from '../renderers/index.js';
+import { renderPluginSummaryMarkdown, renderAssemblyIndexMarkdown, renderSinglePluginTypeMarkdown } from '../renderers/index.js';
 
-/**
- * Builds the full ordered list of wiki pages from parsed IR.
- * Each page has a path and markdown content ready to publish.
- */
 export function buildWikiPages(
   config: DocGenConfig,
-  solution: SolutionModel,
-  flows: FlowModel[]
+  solutions: SolutionModel[],
+  mergedSolution: SolutionModel,
+  flows: FlowModel[],
+  pluginAssemblies: PluginAssemblyModel[] = []
 ): WikiPage[] {
   if (!config.wiki) return [];
 
@@ -22,20 +21,16 @@ export function buildWikiPages(
   // ---- Overview ----
   pages.push({
     path: `${base}/Overview`,
-    content: renderOverviewMarkdown(solution),
+    content: renderOverviewMarkdown(solutions, flows, pluginAssemblies),
   });
 
   // ---- Data Model ----
-  const tableLinks = solution.tables
-    .map(t => `- [${t.displayName}](${base}/Data Model/${t.displayName})`)
-    .join('\n');
-
   pages.push({
     path: `${base}/Data Model`,
-    content: `# Data Model\n\n${solution.tables.length} table(s) in this solution.\n\n${tableLinks}\n`,
+    content: `# Data Model\n\n[[_TOSP_]]\n`,
   });
 
-  for (const table of solution.tables) {
+  for (const table of mergedSolution.tables) {
     pages.push({
       path: `${base}/Data Model/${table.displayName}`,
       content: renderTableMarkdown(table, config),
@@ -43,25 +38,62 @@ export function buildWikiPages(
   }
 
   // ---- Automation ----
-  if (flows.length > 0) {
+  const hasFlows = flows.length > 0;
+  const validAssemblies = pluginAssemblies.filter(a => a.assemblyName.trim() !== '');
+  const hasPlugins = validAssemblies.length > 0;
+
+  if (hasFlows || hasPlugins) {
     pages.push({
       path: `${base}/Automation`,
-      content: `# Automation\n\nPower Automate flows and classic workflows in this solution.\n`,
+      content: `# Automation\n\nPower Automate flows and plugins in this solution.\n`,
     });
 
-    // Flows index — summary table with links to child pages
-    const flowsBasePath = `${base}/Automation/Flows`;
-    pages.push({
-      path: flowsBasePath,
-      content: renderFlowSummaryMarkdown(flows, flowsBasePath),
-    });
-
-    // One page per flow
-    for (const flow of flows) {
+    // ---- Flows ----
+    if (hasFlows) {
+      const flowsBasePath = `${base}/Automation/Flows`;
       pages.push({
-        path: `${flowsBasePath}/${flow.name}`,
-        content: renderSingleFlowMarkdown(flow),
+        path: flowsBasePath,
+        content: renderFlowSummaryMarkdown(flows, flowsBasePath),
       });
+
+      for (const flow of flows) {
+        pages.push({
+          path: `${flowsBasePath}/${flow.name}`,
+          content: renderSingleFlowMarkdown(flow),
+        });
+      }
+    }
+
+    // ---- Plugins ----
+    if (hasPlugins) {
+      const pluginsBasePath = `${base}/Automation/Plugins`;
+
+      pages.push({
+        path: pluginsBasePath,
+        content: renderPluginSummaryMarkdown(validAssemblies),
+      });
+
+      for (const assembly of validAssemblies) {
+        const safeAssemblyName = assembly.assemblyName.replace(/\./g, '-');
+        const assemblyBasePath = `${pluginsBasePath}/${safeAssemblyName}`;
+
+        pages.push({
+          path: assemblyBasePath,
+          content: renderAssemblyIndexMarkdown(assembly, assemblyBasePath),
+        });
+
+        for (const fullName of assembly.pluginTypeNames) {
+          const shortName = fullName.startsWith(assembly.assemblyName + '.')
+            ? fullName.slice(assembly.assemblyName.length + 1)
+            : fullName;
+          const steps = assembly.steps.filter(s => s.className === shortName);
+
+          pages.push({
+            path: `${assemblyBasePath}/${shortName}`,
+            content: renderSinglePluginTypeMarkdown(shortName, steps, assembly),
+          });
+        }
+      }
     }
   }
 
