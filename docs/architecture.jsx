@@ -19,7 +19,7 @@ const layers = [
       { name: "Solution ZIPs", icon: "📦", detail: "Unpacked via pac CLI before the tool runs. Contains all component folders, solution.xml, relationships.", tags: ["XML", "pac CLI"], done: true, moscow: "M" },
       { name: "Flat XML Exports", icon: "🗂️", detail: "Pre-extracted XML files per component. Entities, forms, views, saved queries, relationships all parsed.", tags: ["XML", "Structured"], done: true, moscow: "M" },
       { name: "Power Automate Flows", icon: "🔄", detail: "Flow JSON exported with solution. Trigger, actions, conditions extracted into FlowModel IR.", tags: ["JSON"], done: true, moscow: "S" },
-      { name: "Plugins & Assemblies", icon: "⚙️", detail: "Plugin step registrations from solution XML. Assembly metadata, entity/message/stage bindings.", tags: ["C#", "XML"], done: false, moscow: "S" },
+      { name: "Plugins & Assemblies", icon: "⚙️", detail: "Plugin step registrations from solution XML. Assembly metadata, entity/message/stage bindings.", tags: ["C#", "XML"], done: true, moscow: "S" },
       { name: "Web Resources (JS)", icon: "📜", detail: "JavaScript files from WebResources folder. JSDoc comments, Xrm API calls, event handler registrations extracted per file.", tags: ["JS", "XML"], done: false, moscow: "S" },
       { name: "PCF Controls", icon: "🧩", detail: "Power Apps Component Framework controls unpacked from solution. Manifest, component metadata extracted.", tags: ["JSON", "XML"], done: false, moscow: "C" },
       { name: "Canvas App Source", icon: "🎨", detail: "Unpacked .msapp source. Reads screens, controls, formulas.", tags: ["JSON", "Optional"], done: false, moscow: "W" },
@@ -38,7 +38,7 @@ const layers = [
       { name: "Form Parser", icon: "📋", detail: "Parses FormXml for Main, Quick Create and Card forms. Extracts tabs, sections, fields and header fields. Inactive forms skipped.", tags: ["Core"], done: true, moscow: "M" },
       { name: "Relationship Parser", icon: "↔️", detail: "Reads Other/Relationships XML files. OneToMany resolved from both perspectives. Custom vs standard detection. Direction-aware rendering.", tags: ["Core"], done: true, moscow: "M" },
       { name: "Flow / Workflow Parser", icon: "🔄", detail: "Modern flows from JSON. Classic workflows from XML. Extracts trigger, steps, conditions into FlowModel.", tags: ["Core"], done: true, moscow: "S" },
-      { name: "Plugin Parser", icon: "🔌", detail: "Plugin assemblies and SDK message processing steps. Entity, message, stage, order, filter expressions.", tags: ["Core"], done: false, moscow: "S" },
+      { name: "Plugin Parser", icon: "🔌", detail: "Plugin assemblies and SDK message processing steps. Entity, message, stage, order, filter expressions.", tags: ["Core"], done: true, moscow: "S" },
       { name: "Web Resource Analyser", icon: "📜", detail: "Parses JS files for JSDoc comments, Xrm.Page / Xrm.WebApi calls, form event registrations. Extracts function signatures.", tags: ["JS"], done: false, moscow: "S" },
       { name: "PCF Parser", icon: "🧩", detail: "Reads ControlManifest.xml. Extracts component name, properties, data types.", tags: ["XML"], done: false, moscow: "C" },
       { name: "Security Role Parser", icon: "🔐", detail: "Reads role XML. Builds privilege matrix per entity (Create/Read/Write/Delete/Append etc). Groups by functional area.", tags: ["Core"], done: false, moscow: "C" },
@@ -57,7 +57,7 @@ const layers = [
       { name: "RelationshipModel", icon: "↔️", detail: "OneToMany with referencing/referenced entity, lookup field, direction perspective, isCustom flag.", tags: ["ir/relationship.ts"], done: true, moscow: "M" },
       { name: "ViewFilterCondition", icon: "🔍", detail: "Filter conditions with depth tracking. isJoin flag for link-entity rows. joinField for readable column prefixing.", tags: ["ir/view.ts"], done: true, moscow: "M" },
       { name: "FlowModel", icon: "🔀", detail: "Trigger type, entity, steps with human-readable action descriptions. Mermaid-ready structure.", tags: ["ir/flow.ts"], done: true, moscow: "S" },
-      { name: "PluginModel", icon: "🔌", detail: "Assembly, class, step registrations with entity + message + stage + order.", tags: ["ir/plugin.ts"], done: false, moscow: "S" },
+      { name: "PluginModel", icon: "🔌", detail: "Assembly, class, step registrations with entity + message + stage + order.", tags: ["ir/plugin.ts"], done: true, moscow: "S" },
       { name: "WebResourceModel", icon: "📜", detail: "Per-file model. Functions with JSDoc, Xrm API calls detected, event bindings, dependencies.", tags: ["ir/webresource.ts"], done: false, moscow: "S" },
       { name: "PCFModel", icon: "🧩", detail: "Component manifest metadata, property definitions, data types.", tags: ["ir/pcf.ts"], done: false, moscow: "C" },
       { name: "SecurityModel", icon: "🛡️", detail: "Roles with full privilege matrix. Ready for table rendering per entity.", tags: ["ir/security.ts"], done: false, moscow: "C" },
@@ -84,7 +84,7 @@ const layers = [
     description: "Pluggable renderers — swap or combine without touching parsers or IR",
     components: [
       { name: "Markdown Renderer", icon: "✍️", detail: "Primary output. Produces .md files per table plus solution overview. Compact/detailed config toggle. Unix line endings enforced for ADO Wiki compatibility.", tags: ["Primary"], done: true, moscow: "M" },
-      { name: "ADO Wiki Publisher", icon: "🌐", detail: "Azure DevOps REST API. Creates/updates wiki pages in the correct hierarchy. Handles page ordering.", tags: ["ADO"], done: false, moscow: "S" },
+      { name: "ADO Wiki Publisher", icon: "🌐", detail: "Azure DevOps REST API. Creates/updates wiki pages in the correct hierarchy. Handles page ordering.", tags: ["ADO"], done: true, moscow: "S" },
       { name: "Word / PDF Renderer", icon: "📄", detail: "Optional. Same IR → docx library → as-built document for client delivery.", tags: ["Optional"], done: false, moscow: "C" },
       { name: "Confluence Renderer", icon: "🔵", detail: "Same IR → Confluence storage format. For clients not on ADO. Low priority — most clients use ADO.", tags: ["Optional"], done: false, moscow: "W" },
     ]
@@ -107,8 +107,8 @@ const layers = [
 const pages = [
   { emoji: "🏠", name: "Solution Overview", desc: "Publisher, version, managed/unmanaged, component counts, tables index", done: true, moscow: "M" },
   { emoji: "📋", name: "Table Pages", desc: "Custom & standard columns, relationships, forms with layout, views with filters", done: true, moscow: "M" },
-  { emoji: "🔄", name: "Automations", desc: "Power Automate flows and classic workflows with mermaid flowcharts", done: false, moscow: "S" },
-  { emoji: "🔌", name: "Plugins", desc: "Plugin assemblies, step registrations, entity/message/stage bindings", done: false, moscow: "S" },
+  { emoji: "🔄", name: "Automations", desc: "Power Automate flows and classic workflows with mermaid flowcharts", done: true, moscow: "S" },
+  { emoji: "🔌", name: "Plugins", desc: "Plugin assemblies, step registrations, entity/message/stage bindings", done: true, moscow: "S" },
   { emoji: "📜", name: "Web Resources", desc: "JS files with function index, Xrm API usage, form event bindings", done: false, moscow: "S" },
   { emoji: "🧩", name: "PCF Controls", desc: "Component manifest, properties, data types", done: false, moscow: "C" },
   { emoji: "🛡️", name: "Security", desc: "Role matrix, privilege summary per entity, business unit structure", done: false, moscow: "C" },
@@ -117,16 +117,17 @@ const pages = [
 ];
 
 const decisions = [
-  { q: "Flow action detail depth?", a: "Basic for now, enrichment later", reason: "Current parser extracts action names, descriptions and field mappings. Complex expressions, conditions and loops need enrichment layer analysis to render meaningfully. Parked for Phase 3 enrichment work." },
-  { q: "Language / Runtime?", a: "TypeScript / Node.js", reason: "Confirmed. Typed IR interfaces catch errors at compile time. tsx for fast dev iteration. NodeNext module resolution." },
-  { q: "Markdown templating?", a: "String builder (no engine)", reason: "Confirmed. Pure TypeScript string arrays with a markdownTable() helper. Simpler, fully typed, no Handlebars dependency." },
-  { q: "Multi-solution projects?", a: "Config-driven (Option A)", reason: "Confirmed. doc-gen.config.yml lists solutions with roles: datamodel / plugins / flows. Tool merges IR across solutions into one wiki." },
-  { q: "Solution ZIP vs flat XML?", a: "pac unpack → flat XML", reason: "Confirmed. pac solution unpack runs before the tool. Unpacked XML is the working format. ZIPs and unpacked folders are gitignored." },
-  { q: "How reusable across clients?", a: "npm package + pipeline template", reason: "Confirmed. vel-docgen is the shared tool repo. Each client project has doc-gen.config.yml and a pipeline that references the shared template." },
-  { q: "What gets rendered?", a: "Config-driven toggles", reason: "Each component type (forms, views, relationships, web resources etc) can be enabled/disabled in doc-gen.config.yml. Projects only document what's relevant." },
-  { q: "Custom vs standard components?", a: "Custom-first, standard optional", reason: "Standard OOTB columns, relationships and tables are hidden by default. Configurable per project — excludeStandardRelationships, customColumnsOnly, DEFAULT_EXCLUDED_COLUMNS." },
-  { q: "Filtering approach?", a: "Config-driven exclusion lists", reason: "Confirmed. DEFAULT_EXCLUDED_COLUMNS, excludeBaseCurrencyFields, excludeStandardRelationships — all togglable. Defaults are sensible for most projects." },
-  { q: "Where does the IR live?", a: "In-memory + JSON artifact", reason: "IR is built in memory each run. Pipeline artifact publishing planned — enables diffing between releases and incremental re-runs." },
+  { q: "Architecture pattern?", a: "IR as the contract", reason: "Parsers only produce IR. Renderers only consume IR. Neither knows about the other. Adding a new input format means a new parser emitting existing IR types. Adding a new output format means a new renderer reading existing IR types. The layers never cross." },
+  { q: "Solution input format?", a: "pac unpack → flat XML", reason: "pac solution unpack runs before the tool. Unpacked XML is the working format. ZIPs and unpacked folders are gitignored. Keeps the tool simple — no ZIP extraction logic, no pac dependency at runtime." },
+  { q: "Language / Runtime?", a: "TypeScript / Node.js", reason: "Typed IR interfaces catch errors at compile time. tsx for fast dev iteration. NodeNext module resolution. Type safety across the parser → IR → renderer boundary is the main benefit." },
+  { q: "Markdown templating?", a: "String builder (no engine)", reason: "Pure TypeScript string arrays with a markdownTable() helper. No Handlebars or template engine dependency. Fully typed, easier to debug, and simpler to maintain than a templating DSL." },
+  { q: "Multi-solution projects?", a: "Config-driven merge", reason: "doc-gen.config.yml lists multiple solutions. The tool parses each independently into IR then merges into a single wiki. Keeps solutions decoupled in source but unified in output." },
+  { q: "How reusable across clients?", a: "npm package + pipeline template", reason: "vel-docgen is the shared tool repo. Each client project has doc-gen.config.yml and references the shared ADO pipeline template by version. No copy-paste, no drift between clients." },
+  { q: "What gets rendered?", a: "Config-driven component toggles", reason: "Each component type (tables, flows, plugins, web resources etc) can be enabled/disabled per project in doc-gen.config.yml. Projects only document what's relevant — a plugin-only solution won't generate empty flow pages." },
+  { q: "Custom vs standard components?", a: "Custom-first, standard optional", reason: "Standard OOTB columns, relationships and tables are hidden by default. Configurable per project via excludeStandardRelationships, customColumnsOnly, and DEFAULT_EXCLUDED_COLUMNS. Keeps docs focused on what the team actually built." },
+  { q: "Plugin wiki structure?", a: "Per-class subpages", reason: "Each plugin class gets its own wiki page under the assembly index, rather than one flat page per assembly. Assemblies with 30+ classes would be unreadable as a single page. Subpages also get their own sidebar entry for direct navigation." },
+  { q: "ADO wiki page ordering?", a: "Reverse-alpha publish order", reason: "ADO Wiki REST API orders pages by creation time, newest first. Publishing siblings in reverse-alphabetical order means the sidebar renders A→Z. No .order file or git repo access needed — just a sort before publish." },
+  { q: "Where does the IR live?", a: "In-memory + JSON artifact", reason: "IR is built in memory each run. Pipeline artifact publishing is planned — enables diffing between releases, debugging parse output, and incremental re-runs without re-parsing unchanged solutions." },
 ];
 
 const progress = [
@@ -159,11 +160,11 @@ const progress = [
     ]
   },
   {
-    phase: "Phase 3 — Automation, Code & Security", color: "#A020C0", status: "NEXT",
+    phase: "Phase 3 — Automation, Code & Security", color: "#A020C0", status: "IN PROGRESS",
     items: [
       { label: "Flow parser (Power Automate)", done: true },
       { label: "Classic workflow parser", done: false },
-      { label: "Plugin step parser", done: false },
+      { label: "Plugin step parser", done: true },
       { label: "JavaScript WebResource parser", done: false },
       { label: "PCF component parser", done: false },
       { label: "Security role privilege matrix", done: false },
@@ -176,8 +177,8 @@ const progress = [
     phase: "Phase 4 — Pipeline & Reusability", color: "#0E9E8E", status: "IN PROGRESS",
     items: [
       { label: "doc-gen.config.yml schema + parser", done: true },
-      { label: "Multi-solution support (Option A)", done: false },
-      { label: "ADO Wiki REST API publisher", done: false },
+      { label: "Multi-solution support (Option A)", done: true },
+      { label: "ADO Wiki REST API publisher", done: true },
       { label: "Azure DevOps pipeline YAML template", done: false },
       { label: "CLI entry point (commander)", done: false },
       { label: "npm package publishing", done: false },
@@ -267,7 +268,7 @@ export default function App() {
             </div>
             <span style={{ fontSize: 10, color: "#9080a8", letterSpacing: "0.08em" }}>
               <span style={{ color: "#7B2D8B", fontWeight: 600 }}>{doneComponents}</span>/{totalComponents} components built &nbsp;·&nbsp;
-              <span style={{ color: "#0E9E8E", fontWeight: 600 }}>Phases 1 & 2 complete · Phase 4 started</span>
+              <span style={{ color: "#0E9E8E", fontWeight: 600 }}>Phases 1 & 2 complete · Phases 3 & 4 in progress</span>
             </span>
           </div>
 
@@ -390,8 +391,8 @@ export default function App() {
                 const tot = p.items.length;
                 const statusStyle = {
                   "COMPLETE": { bg: "#eaf7f0", color: "#0E9E8E", border: "#0E9E8E40" },
-                  "NEXT": { bg: "#f7eefa", color: "#7B2D8B", border: "#7B2D8B40" },
                   "IN PROGRESS": { bg: "#fdf6e3", color: "#D4880A", border: "#D4880A40" },
+                  "NEXT": { bg: "#f7eefa", color: "#7B2D8B", border: "#7B2D8B40" },
                   "PLANNED": { bg: "#f4f2f7", color: "#9080a8", border: "#ddd6e8" },
                 }[p.status];
                 return (
@@ -418,9 +419,7 @@ export default function App() {
                 );
               })}
               <div style={{ background: "#f7eefa", border: "1px solid #d4b8e0", borderRadius: 6, padding: 14, fontSize: 11, color: "#6a3880", lineHeight: 1.7 }}>
-                💡 <strong style={{ color: "#7B2D8B" }}>Phases 1 & 2 are complete and producing real output.</strong> The core data model
-                documentation — tables, columns, relationships, forms and views — all parse and render correctly
-                to ADO Wiki-compatible markdown. Phase 3 is underway — Flow Parser is complete. Phase 4 has started with the config system.
+                💡 <strong style={{ color: "#7B2D8B" }}>Phases 1 & 2 are complete. Phases 3 & 4 are both in progress.</strong> Flows and plugins are parsing and publishing to ADO Wiki. Multi-solution config and the wiki publisher are working. Still to complete in Phase 3: classic workflows, web resources, security roles, env vars, and Mermaid diagrams.
               </div>
             </div>
           )}
@@ -440,11 +439,11 @@ export default function App() {
                     { indent: 1, text: "📁 Data Model", color: "#7B2D8B", done: true },
                     { indent: 2, text: "📊 Entity Relationship Diagram", color: "#9080a8", done: false },
                     { indent: 2, text: "📋 [Table Name] × N", color: "#7B2D8B", done: true },
-                    { indent: 1, text: "📁 Automation", color: "#9080a8", done: false },
-                    { indent: 2, text: "🔄 Power Automate Flows", color: "#9080a8", done: false },
+                    { indent: 1, text: "📁 Automation", color: "#7B2D8B", done: true },
+                    { indent: 2, text: "🔄 Power Automate Flows", color: "#7B2D8B", done: true },
                     { indent: 2, text: "⚙️ Classic Workflows", color: "#9080a8", done: false },
-                    { indent: 1, text: "📁 Custom Code", color: "#9080a8", done: false },
-                    { indent: 2, text: "🔌 Plugin Assemblies", color: "#9080a8", done: false },
+                    { indent: 1, text: "📁 Custom Code", color: "#7B2D8B", done: true },
+                    { indent: 2, text: "🔌 Plugin Assemblies", color: "#7B2D8B", done: true },
                     { indent: 2, text: "📜 Web Resources (JS)", color: "#9080a8", done: false },
                     { indent: 2, text: "🧩 PCF Controls", color: "#9080a8", done: false },
                     { indent: 1, text: "📁 Security", color: "#9080a8", done: false },
@@ -510,9 +509,7 @@ export default function App() {
                 ))}
               </div>
               <div style={{ background: "#f7eefa", border: "1px solid #d4b8e0", borderRadius: 6, padding: 14, fontSize: 11, color: "#6a3880", lineHeight: 1.7 }}>
-                💡 <strong style={{ color: "#7B2D8B" }}>IR is the contract.</strong> Parsers only produce IR. Renderers only consume IR.
-                Neither knows about the other. Adding a new input format = new parser emitting the same IR types.
-                Adding a new output format = new renderer reading the same IR types. The layers never cross.
+                💡 <strong style={{ color: "#7B2D8B" }}>These decisions are locked in.</strong> They represent deliberate tradeoffs made during the build — not preferences, not defaults. Changing any of them would have cascading effects across the architecture.
               </div>
             </div>
           )}
