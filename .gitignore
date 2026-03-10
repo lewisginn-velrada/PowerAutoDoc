@@ -29,3 +29,6 @@ Thumbs.db
 
 # Solution ZIPs — build artifacts, not source
 *.zip
+
+# notes
+*.txt
