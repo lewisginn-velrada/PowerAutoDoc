@@ -32,3 +32,6 @@ Thumbs.db
 
 # notes
 *.txt
+
+#yml config file, required for client project, but should not be committed to source control as it may contain environment-specific settings
+doc-gen.config.yml

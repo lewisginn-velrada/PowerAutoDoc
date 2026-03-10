@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { loadConfig } from './config/index.js';
 import { parseSolution, parseSolutionManifest } from './parsers/index.js';
 import { writeTableMarkdown, writeOverviewMarkdown, writePluginMarkdown } from './renderers/index.js';

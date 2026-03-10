@@ -1,5 +1,28 @@
 {
+  "name": "powerautodoc",
+  "version": "0.1.1",
+  "description": "Automated as-built documentation generator for Power Platform solutions",
   "type": "module",
+  "bin": {
+    "powerautodoc": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lewginn/PowerAutoDoc.git"
+  },
+  "keywords": [
+    "power-platform",
+    "dataverse",
+    "dynamics-365",
+    "documentation",
+    "azure-devops",
+    "wiki"
+  ],
+  "author": "Lewis Ginn",
+  "license": "MIT",
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^25.3.3",
@@ -18,6 +41,10 @@
   "scripts": {
     "dev": "tsx src/index.ts > dev.log 2>&1",
     "build": "tsc",
+    "prepublishOnly": "npm run build",
     "docs": "cd docs-viewer && npm run build && npx serve dist"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
