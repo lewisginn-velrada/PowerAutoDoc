@@ -9,6 +9,9 @@ import type { SolutionModel } from './ir/index.js';
 import type { FlowModel } from './ir/index.js';
 import { parseAllPlugins } from './parsers/index.js';
 import type { PluginAssemblyModel } from './ir/index.js';
+import { parseAllWebResources } from './parsers/index.js';
+import type { WebResourceModel } from './ir/index.js';
+import { writeWebResourceMarkdown } from './renderers/index.js';
 
 async function main() {
   const config = loadConfig();
@@ -18,6 +21,7 @@ async function main() {
   const allSolutions: SolutionModel[] = [];
   const allFlows: FlowModel[] = [];
   const allPluginAssemblies: PluginAssemblyModel[] = [];
+  const allWebResources: WebResourceModel[] = [];
 
   for (const solutionEntry of config.solutions) {
     const { path: unpackedPath, role, publisherPrefix } = solutionEntry;
@@ -75,15 +79,18 @@ async function main() {
       console.log(`  Parsed ${assemblies.length} plugin assemblies from: ${unpackedPath}`);
     }
 
-    // ---- Web Resources ---- (Phase 3 — parser not yet built)
+    // ---- Web Resources ----
     if (isWebResources && config.components.webResources) {
-      console.log(`  Web resource parsing not yet implemented for: ${unpackedPath}`);
+      const webResources = parseAllWebResources(unpackedPath);
+      allWebResources.push(...webResources);
+      writeWebResourceMarkdown(webResources, outputPath);
+      console.log(`  Parsed ${webResources.length} web resources from: ${unpackedPath}`);
     }
   }
 
   // ---- Wiki publish ----
   if (config.wiki && mergedSolution) {
-    const pages = buildWikiPages(config, allSolutions, mergedSolution, allFlows, allPluginAssemblies);
+    const pages = buildWikiPages(config, allSolutions, mergedSolution, allFlows, allPluginAssemblies, allWebResources);
     await publishToWiki(config.wiki, pages);
   }
 }

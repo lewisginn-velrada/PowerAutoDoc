@@ -12,11 +12,10 @@ solutions:
     role: all
     displayName: ISMS Plugins
 
-  # Uncomment when web resource solution is ready:
-  # - path: ./unpacked/ISMSWebResources
-  #   publisherPrefix: isms
-  #   role: webresources
-  #   displayName: ISMS Web Resources
+  - path: ./unpacked/ISMSWebResources
+    publisherPrefix: isms
+    role: webresources
+    displayName: ISMS Web Resources
 
 output:
   path: ./output
@@ -49,7 +48,7 @@ components:
   relationships: true
   flows: true
   plugins: true
-  webResources: false # Phase 3 — not yet built
+  webResources: true 
   security: false    # Phase 3 — not yet built
 
 wiki:

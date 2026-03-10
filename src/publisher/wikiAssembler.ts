@@ -5,13 +5,16 @@ import { renderOverviewMarkdown } from '../renderers/index.js';
 import { renderTableMarkdown } from '../renderers/index.js';
 import { renderFlowSummaryMarkdown, renderSingleFlowMarkdown } from '../renderers/index.js';
 import { renderPluginSummaryMarkdown, renderAssemblyIndexMarkdown, renderSinglePluginTypeMarkdown } from '../renderers/index.js';
+import type { WebResourceModel } from '../ir/index.js';
+import { renderWebResourceSummaryMarkdown, renderWebResourceDetailMarkdown } from '../renderers/index.js';
 
 export function buildWikiPages(
   config: DocGenConfig,
   solutions: SolutionModel[],
   mergedSolution: SolutionModel,
   flows: FlowModel[],
-  pluginAssemblies: PluginAssemblyModel[] = []
+  pluginAssemblies: PluginAssemblyModel[] = [],
+  webResources: WebResourceModel[] = []
 ): WikiPage[] {
   if (!config.wiki) return [];
 
@@ -93,6 +96,29 @@ export function buildWikiPages(
             content: renderSinglePluginTypeMarkdown(shortName, steps, assembly),
           });
         }
+      }
+    }
+    // ---- Web Resources ----
+    const jsResources = webResources.filter(r => r.resourceType === 'JavaScript');
+    if (jsResources.length > 0) {
+      const wrBasePath = `${base}/Custom Code/Web Resources`;
+
+      pages.push({
+        path: `${base}/Custom Code`,
+        content: `# Custom Code\n\n[[_TOSP_]]\n`,
+      });
+
+      pages.push({
+        path: wrBasePath,
+        content: renderWebResourceSummaryMarkdown(jsResources),
+      });
+
+      for (const resource of jsResources) {
+        const title = resource.name.split('/').pop() ?? resource.name;
+        pages.push({
+          path: `${wrBasePath}/${title}`,
+          content: renderWebResourceDetailMarkdown(resource),
+        });
       }
     }
   }

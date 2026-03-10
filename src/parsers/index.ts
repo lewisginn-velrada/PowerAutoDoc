@@ -6,3 +6,4 @@ export { parseSolution } from './solutionParser.js';
 export { parseSolutionManifest } from './solutionManifestParser.js';
 export { parseAllFlows } from './flowParser.js';
 export { parseAllPlugins } from './pluginParser.js';
+export { parseAllWebResources } from './webResourceParser.js';
