@@ -110,7 +110,7 @@ export function renderWebResourceDetailMarkdown(resource: WebResourceModel): str
       ['Type',              resource.resourceType],
       ['Introduced Version', resource.introducedVersion],
       ['Namespace',         resource.namespace ?? '—'],
-      ['File',              resource.fileName],
+
     ]
   ));
   lines.push('');
