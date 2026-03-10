@@ -1,3 +1,4 @@
+doc-gen.config.yml
 # Dependencies
 node_modules/
 
@@ -34,4 +35,4 @@ Thumbs.db
 *.txt
 
 #yml config file, required for client project, but should not be committed to source control as it may contain environment-specific settings
-doc-gen.config.yml
+*doc-gen.config.yml

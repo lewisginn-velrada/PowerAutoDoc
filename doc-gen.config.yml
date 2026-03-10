@@ -16,6 +16,11 @@ solutions:
     publisherPrefix: isms
     role: webresources
     displayName: ISMS Web Resources
+  
+  - path: ./unpacked/ISMSPowerAutomate
+    publisherPrefix: isms
+    role: flows
+    displayName: ISMS Power Automate
 
 output:
   path: ./output
